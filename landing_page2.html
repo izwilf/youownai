@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You Own AI - The AI Platform Where Users Are Owners</title>
+    <style>
+        /* CSS VARIABLES FOR EASY THEMING (DARK/LIGHT MODE) */
+        :root {
+            --bg-color: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --header-bg: rgba(255, 255, 255, 0.8);
+            --text-color: #111827;
+            --text-secondary: #4b5563;
+            --text-tertiary: #64748b;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --card-bg: rgba(0, 0, 0, 0.02);
+            --card-border: rgba(0, 0, 0, 0.05);
+            --logo-gradient-start: #667eea;
+            --logo-gradient-end: #f97316;
+            --button-gradient-start: #667eea;
+            --button-gradient-end: #764ba2;
+            --button-shadow-color: rgba(102, 126, 234, 0.4);
+            --success-gradient-start: #10b981;
+            --success-gradient-end: #059669;
+            --problem-color: #ef4444;
+            --solution-color: #22c55e;
+            --accent-color: #667eea;
+            --accent-color-light: #a5b4fc;
+            --accent-bg: rgba(102, 126, 234, 0.1);
+            --accent-border: rgba(102, 126, 234, 0.2);
+        }
+
+        body.dark-mode {
+            --bg-color: #0a0a0a;
+            --bg-secondary: rgba(255, 255, 255, 0.02);
+            --header-bg: rgba(10, 10, 10, 0.8);
+            --text-color: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-tertiary: #64748b;
+            --border-color: rgba(255, 255, 255, 0.05);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.06);
+        }
+
+        /* Auto-switch based on OS preference */
+        @media (prefers-color-scheme: dark) {
+            :root:not(.light-mode) {
+                --bg-color: #0a0a0a;
+                --bg-secondary: rgba(255, 255, 255, 0.02);
+                --header-bg: rgba(10, 10, 10, 0.8);
+                --text-color: #ffffff;
+                --text-secondary: #94a3b8;
+                --text-tertiary: #64748b;
+                --border-color: rgba(255, 255, 255, 0.05);
+                --card-bg: rgba(255, 255, 255, 0.03);
+                --card-border: rgba(255, 255, 255, 0.06);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        /* Animated gradient background - ONLY for dark mode */
+        body.dark-mode::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, #1a1a2e 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, #16213e 0%, transparent 50%),
+                        radial-gradient(circle at 40% 40%, #0f1923 0%, transparent 50%);
+            z-index: -1;
+            animation: gradientShift 20s ease infinite;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        body:not(.dark-mode)::before {
+            opacity: 0;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { transform: rotate(0deg) scale(1.5); }
+            50% { transform: rotate(180deg) scale(1.5); }
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            background: var(--header-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.3s, border-color 0.3s;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--logo-gradient-start) 0%, var(--logo-gradient-end) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        
+        .nav-link:hover {
+            color: var(--text-color);
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .theme-toggle svg {
+            width: 18px;
+            height: 18px;
+            color: var(--text-secondary);
+            transition: color 0.3s;
+        }
+        .theme-toggle .moon-icon { display: block; }
+        .theme-toggle .sun-icon { display: none; }
+        body.dark-mode .theme-toggle .moon-icon { display: none; }
+        body.dark-mode .theme-toggle .sun-icon { display: block; }
+
+        .hero {
+            padding: 140px 0 80px;
+            text-align: center;
+        }
+        
+        .coming-soon-badge {
+            display: inline-block;
+            background: rgba(249, 115, 22, 0.1);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            color: #fb923c;
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+        }
+        
+        .hero h1 {
+            font-size: clamp(40px, 8vw, 72px);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(to right, var(--text-color) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero .subtitle {
+            font-size: clamp(18px, 3vw, 24px);
+            color: var(--text-secondary);
+            margin: 0 auto 48px;
+            font-weight: 400;
+            max-width: 800px;
+        }
+        
+        .problem-solution {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 900px;
+            margin: 0 auto 60px;
+        }
+        
+        .problem-card, .solution-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: left;
+            transition: all 0.3s;
+        }
+        
+        .problem-card { border-color: rgba(239, 68, 68, 0.2); }
+        .solution-card { border-color: rgba(34, 197, 94, 0.2); background: rgba(34, 197, 94, 0.05); }
+        .problem-card:hover, .solution-card:hover { transform: translateY(-2px); }
+        .card-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .problem-card .card-label { color: var(--problem-color); }
+        .solution-card .card-label { color: var(--solution-color); }
+        .card-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--text-color); }
+        .card-description { font-size: 14px; color: var(--text-tertiary); line-height: 1.5; }
+        
+        .email-capture { max-width: 600px; margin: 0 auto 60px; text-align: center; }
+        .validation-text { font-size: 20px; color: var(--text-color); margin-bottom: 24px; font-weight: 600; }
+        .email-form {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 100px;
+            padding: 8px;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .email-form input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 20px;
+            color: var(--text-color);
+            font-size: 16px;
+            outline: none;
+        }
+        
+        .email-form input::placeholder { color: var(--text-tertiary); }
+        
+        .email-form button {
+            background: linear-gradient(135deg, var(--button-gradient-start) 0%, var(--button-gradient-end) 100%);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 100px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .email-form button:hover { transform: scale(1.05); }
+        
+        .early-access-perks { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+        .perk { display: flex; align-items: center; gap: 8px; color: var(--text-tertiary); font-size: 14px; }
+        .perk svg { width: 16px; height: 16px; color: var(--accent-color); }
+        
+        .how-it-works { padding: 100px 0; background: linear-gradient(180deg, transparent 0%, var(--accent-bg) 50%, transparent 100%); }
+        .section-header { text-align: center; margin-bottom: 60px; }
+        .section-label {
+            display: inline-block;
+            background: var(--accent-bg);
+            border: 1px solid var(--accent-border);
+            color: var(--accent-color-light);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(to right, var(--text-color) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .section-subtitle { font-size: 18px; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 32px; max-width: 900px; margin: 0 auto; }
+        .step { text-align: center; }
+        
+        .step-number {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--button-gradient-start) 0%, var(--button-gradient-end) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            margin: 0 auto 20px;
+        }
+        
+        .step h3 { font-size: 18px; margin-bottom: 12px; color: var(--text-color); }
+        .step p { color: var(--text-tertiary); font-size: 14px; line-height: 1.5; }
+        
+        .vision { padding: 100px 0; text-align: center; }
+        .vision-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 1000px; margin: 60px auto 0; }
+        .vision-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 32px;
+            text-align: left;
+            transition: all 0.3s;
+        }
+        
+        .vision-card:hover { background: var(--bg-secondary); border-color: var(--accent-border); transform: translateY(-4px); }
+        .vision-icon { font-size: 32px; margin-bottom: 20px; }
+        .vision-card h3 { font-size: 20px; margin-bottom: 12px; color: var(--text-color); }
+        .vision-card p { color: var(--text-tertiary); line-height: 1.6; margin-bottom: 16px; }
+        .vision-stat {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--logo-gradient-start) 0%, var(--logo-gradient-end) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .faq {
+            padding: 100px 20px; /* Use padding for inner spacing */
+            background: var(--bg-secondary);
+            border-radius: 32px;
+            margin-top: 60px;
+            margin-bottom: 60px;
+        }
+        
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+            max-width: 900px;
+            margin: 60px auto 0;
+        }
+        
+        .faq-item h3 { font-size: 18px; margin-bottom: 12px; color: var(--text-color); }
+        .faq-item p { color: var(--text-tertiary); line-height: 1.6; }
+        
+        .final-cta { padding: 100px 0; text-align: center; }
+        .final-cta h2 { font-size: clamp(32px, 5vw, 48px); margin-bottom: 24px; color: var(--text-color); }
+        .final-cta .subtitle { font-size: 20px; color: var(--text-secondary); margin-bottom: 40px; }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--button-gradient-start) 0%, var(--button-gradient-end) 100%);
+            color: white;
+            padding: 16px 48px;
+            border-radius: 100px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px var(--button-shadow-color);
+        }
+        
+        .cta-button:hover { transform: translateY(-2px); box-shadow: 0 0 40px var(--button-shadow-color); }
+        
+        footer { padding: 60px 0 40px; text-align: center; border-top: 1px solid var(--border-color); }
+        footer p { color: var(--text-tertiary); font-size: 14px; }
+        
+        .success-message {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--success-gradient-start) 0%, var(--success-gradient-end) 100%);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 100px;
+            font-weight: 600;
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+        .success-message.show { opacity: 1; animation: slideDown 0.5s ease; }
+        
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-20px); }
+            to { transform: translateX(-50%) translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .problem-solution, .faq-grid, .vision-grid { grid-template-columns: 1fr; }
+            .email-form { flex-direction: column; border-radius: 12px; }
+            .email-form button { width: 100%; }
+            .nav-links { display: none; }
+        }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .animate-on-load {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+
+    <div class="success-message" id="successMessage">
+        🎉 You're on the list! Check your email.
+    </div>
+    
+    <header>
+        <nav class="container">
+            <div class="logo">You Own AI</div>
+            <div class="nav-links">
+                <a href="#how" class="nav-link">How it Works</a>
+                <a href="#vision" class="nav-link">Vision</a>
+                <a href="#faq" class="nav-link">FAQ</a>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <svg class="moon-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <svg class="sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+            </div>
+        </nav>
+    </header>
+    
+    <main>
+        <section class="hero container">
+            <span class="coming-soon-badge animate-on-load" style="animation-delay: 0s;">Launching Fall 2025</span>
+            <h1 class="animate-on-load" style="animation-delay: 0.1s;">Same price as ChatGPT.<br>But You Own Your AI.</h1>
+            <p class="subtitle animate-on-load" style="animation-delay: 0.2s;">The first AI platform owned by regular people instead of investment companies, where users have maximum control over their data, earn from membership, and can sell their data on their terms.</p>
+            
+            <div class="problem-solution animate-on-load" style="animation-delay: 0.3s;">
+                <div class="problem-card">
+                    <div class="card-label">The Problem</div>
+                    <div class="card-title">You Pay for AI, but You Don't Own It.</div>
+                    <div class="card-description">You pay $20/month. You provide the data, and the feedback that makes Large Language Models (LLMs) smarter. This means that you're renting access from a corporation that your data helped build. The data to build these AI models is provided by users like you. Meanwhile all the profits, the equity, and the power to set the rules are controlled by 4 big companies instead of the majority of LLM users. The current model turns users into resources, not stakeholders.</div>
+                </div>
+                
+                <div class="solution-card">
+                    <div class="card-label">Our Solution</div>
+                    <div class="card-title">You Profit From Your Data</div>
+                    <div class="card-description">You pay the same $20/month price. You Own AI helps you control hosting of your AI (no coding required). By becoming a member, you can vote on company direction, earn dividends, own your data completely, and choose how to monetize it. Sell anonymized data to AI companies on YOUR terms. Build with any open source model. Earn by helping other members of the community. True data sovereignty and a community of like-minded privacy-focused AI pioneers.</div>
+                </div>
+            </div>
+            
+            <div class="email-capture animate-on-load" style="animation-delay: 0.4s;">
+                <div class="validation-text">
+                    Join 500+ people ready to own their AI
+                </div>
+                
+                <form class="email-form" onsubmit="handleSubmit(event)">
+                    <input type="email" placeholder="your@email.com" required>
+                    <button type="submit">Get Early Access</button>
+                </form>
+                
+                <div class="early-access-perks">
+                    <div class="perk">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Founding member status
+                    </div>
+                    <div class="perk">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        First access to invest
+                    </div>
+                    <div class="perk">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Shape the platform
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="how-it-works" id="how">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-label">How it works</span>
+                    <h2 class="section-title">Three Ways to Participate</h2>
+                    <p class="section-subtitle">Use it, build on it, or own it. Better yet, do all three.</p>
+                </div>
+                
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>Use Any AI Model</h3>
+                        <p>Build workflows with GPT-4, Claude, Llama, Mistral, or any open source model. True interoperability - no vendor lock-in.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>Monetize Your Data</h3>
+                        <p>Your conversations stay encrypted. But if YOU choose, sell anonymized data to AI companies. You set the price. You keep 100% of the sale.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>Earn For Contributions</h3>
+                        <p>All users who own shares receive monthly dividend payments, with extra earning opportunities for contributors. The more the platform grows, the more you earn.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="vision container" id="vision">
+            <div class="section-header">
+                <span class="section-label">The Vision</span>
+                <h2 class="section-title">Why This Matters</h2>
+                <p class="section-subtitle">We're not just building another AI tool. We're changing who benefits from AI.</p>
+            </div>
+            
+            <div class="vision-grid">
+<div class="vision-card">
+                <h3>🔐 Data Sovereignty First</h3>
+                <p>You hold the encryption keys. Your data never leaves your control unless YOU decide to monetize it. Set your own prices for AI training data.</p>
+                <div class="vision-stat">100% Your Data</div>
+            </div>
+            <div class="vision-card">
+                <h3>💰 Crowdfunded</h3>
+                <p>We are a platform for the people, which is why we are raising all equity through regulated crowdfunding. When the platform succeeds, you succeed.</p>
+                <div class="vision-stat">Your Platform</div>
+            </div>
+            <div class="vision-card">
+                <h3>🚀 Built for Builders</h3>
+                <p>We are building a marketplace for innovators to reward their contributions. Connect with clients who need your AI services, keep 95% of your earnings.</p>
+                <div class="vision-stat">Unleash Your Creativity</div>
+            </div>
+            <div class="vision-card">
+                <h3>💸 Monthly Dividends</h3>
+                <p>Every user has the option to receive (or reinvest) monthly dividend payments from platform profits into community projects. ChatGPT keeps everything. Here, you own AI.</p>
+                <div class="vision-stat">Everyone Earns</div>
+            </div>
+            <div class="vision-card">
+                <h3>🔄 Total Interoperability</h3>
+                <p>Create AI workflows using ANY open-source model - GPT OSS, Deepseek, Claude, Llama, Mistral, and more. Export your data anytime. No walled gardens, no lock-in.</p>
+                <div class="vision-stat">Open Ecosystem</div>
+            </div>
+            </div>
+        </section>
+        
+        <section class="faq container" id="faq">
+            <div class="section-header">
+                <span class="section-label">FAQ</span>
+                <h2 class="section-title">Common Questions</h2>
+            </div>
+            
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h3>When can I invest?</h3>
+                    <p>We're preparing for a Regulation CF campaign on Republic or StartEngine in Q3 2025. Join the waitlist to be notified first.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>How is this legal?</h3>
+                    <p>We'll use SEC-compliant Regulation Crowdfunding, allowing anyone to invest. Same rules companies like Gumroad used to raise from their communities.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>What if I just want to use it?</h3>
+                    <p>Perfect! The platform will be $19.99/month for users. No investment required. Investing is optional for those who want ownership and dividends.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>How do creators earn?</h3>
+                    <p>Contribute to our code-base to make our platform run better. Create AI apps that users can try for free or purchase. List them in our marketplace. Keep 90% of all sales. It's like Etsy for AI.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Why should I trust you?</h3>
+                    <p>We're building in public, will open-source our code, and use regulated investment platforms. Everything will be transparent and verifiable.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>What makes you different?</h3>
+                    <p>We're the only platform combining: user ownership, data monetization, true privacy, and AI done responsibly. More than AI, our mission is for people to reclaim their data sovereignty that powers over trillions of dollars in the economy.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="final-cta container">
+            <h2>Ready to Own Your AI Future?</h2>
+            <p class="subtitle">Join the waitlist. No spam, just major updates.</p>
+            <a href="#" onclick="scrollToEmail(); return false;" class="cta-button">
+                Join 500+ Early Believers →
+            </a>
+        </section>
+    </main>
+    
+    <footer class="container">
+        <p>© 2025 You Own AI - Building the future of user-owned AI</p>
+        <p style="margin-top: 8px;">Questions? hello@youownai.com</p>
+        
+        <div style="margin-top: 40px; padding: 24px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; max-width: 800px; margin-left: auto; margin-right: auto; text-align: left;">
+            <h4 style="color: var(--problem-color); font-size: 14px; font-weight: 600; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px;">Important Legal Disclaimer</h4>
+            
+            <p style="font-size: 12px; color: var(--text-tertiary); line-height: 1.6; margin-bottom: 12px;">
+                <strong>NO OFFER TO SELL SECURITIES:</strong> This website and its contents do not constitute an offer to sell or the solicitation of an offer to buy any securities. No offering of securities will be made except through SEC-regulated crowdfunding platforms such as Republic or StartEngine, and only to persons in jurisdictions where such offerings are legally permitted.
+            </p>
+            
+            <p style="font-size: 12px; color: var(--text-tertiary); line-height: 1.6; margin-bottom: 12px;">
+                <strong>FORWARD-LOOKING STATEMENTS:</strong> This website contains forward-looking statements, including projected timelines (e.g., "Launching Fall 2025," "Q3 2025"), market data, and business plans. These statements are based on current expectations and assumptions that are subject to risks and uncertainties. Actual results could differ materially.
+            </p>
+            
+            <p style="font-size: 12px; color: var(--text-tertiary); line-height: 1.6;">
+                <strong>INVESTMENT RISK:</strong> Investments in startups are speculative, illiquid, and involve a high degree of risk, including the possible loss of your entire investment. This is not investment advice. Any prospective investor should consult with their own advisors.
+            </p>
+        </div>
+    </footer>
+    
+    <script>
+        // --- THEME TOGGLE SCRIPT ---
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        const setTheme = (isDarkMode) => {
+            if (isDarkMode) {
+                body.classList.add('dark-mode');
+                body.classList.remove('light-mode');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.add('light-mode');
+                body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+            }
+        };
+
+        themeToggle.addEventListener('click', () => {
+            const isDarkMode = body.classList.contains('dark-mode');
+            setTheme(!isDarkMode);
+        });
+
+        // Set initial theme on page load
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme === 'dark');
+        } else {
+            // If no saved theme, use OS preference
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            setTheme(prefersDark);
+        }
+
+        // --- ORIGINAL SCRIPT ---
+        let signupCount = 527;
+        
+        function handleSubmit(event) {
+            event.preventDefault();
+            const email = event.target.querySelector('input').value;
+            const successMsg = document.getElementById('successMessage');
+            successMsg.classList.add('show');
+            
+            signupCount++;
+            document.querySelector('.validation-text').textContent = 
+                `Join ${signupCount}+ people ready to own their AI`;
+            
+            event.target.reset();
+            
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+            }, 3000);
+            
+            console.log('Email for waitlist:', email);
+        }
+        
+        function scrollToEmail() {
+            const emailInput = document.querySelector('.email-form input');
+            emailInput.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+            emailInput.focus();
+        }
+        
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.step, .vision-card, .faq-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
